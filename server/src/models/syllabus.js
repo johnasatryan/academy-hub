@@ -22,6 +22,7 @@ const syllabusSchema = new mongoose.Schema(
     prerequisites: String,
     resources: String,
     tags: [String],
+    tasks: [String],
     phases: [phaseSchema],
   },
   { timestamps: true },

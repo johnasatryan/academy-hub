@@ -158,6 +158,7 @@ const Dashboard = () => {
                   variant='secondary'
                   className='w-full justify-start'
                   size='lg'
+                  mb='sm'
                 >
                   <Plus className='mr-2 h-5 w-5' />
                   Create New Syllabus

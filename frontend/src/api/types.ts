@@ -3,6 +3,7 @@ export interface Module {
   title: string;
   duration: string;
   topics?: string[];
+  tasks?: string[];
 }
 
 export interface Phase {

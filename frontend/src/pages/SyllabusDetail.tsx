@@ -24,6 +24,21 @@ const SyllabusDetail = () => {
 
   const [syllabus, setSyllabus] = useState<Syllabus | null>(null);
   const [loading, setLoading] = useState(true);
+  const [openPhase, setOpenPhase] = useState<number | null>(null);
+  const [openModule, setOpenModule] = useState<Record<number, number | null>>(
+    {},
+  );
+
+  const togglePhase = (index: number) => {
+    setOpenPhase(openPhase === index ? null : index);
+  };
+
+  const toggleModule = (phaseIndex: number, moduleIndex: number) => {
+    setOpenModule((prev) => ({
+      ...prev,
+      [phaseIndex]: prev[phaseIndex] === moduleIndex ? null : moduleIndex,
+    }));
+  };
 
   useEffect(() => {
     const fetchSyllabus = async () => {
@@ -206,28 +221,85 @@ const SyllabusDetail = () => {
                 <CardContent className='space-y-6'>
                   {syllabus.phases?.map((phase, phaseIndex) => (
                     <div key={phaseIndex} className='space-y-4'>
-                      <div className='p-4 bg-gradient-primary rounded-lg text-primary-foreground'>
-                        <h3 className='font-bold text-xl mb-1'>
-                          Phase {phaseIndex + 1}: {phase.title}
-                        </h3>
-                        <p className='text-sm opacity-90'>
-                          {phase.description}
-                        </p>
+                      <div
+                        onClick={() => togglePhase(phaseIndex)}
+                        className='p-4 bg-gradient-primary rounded-lg text-primary-foreground cursor-pointer flex items-center justify-between'
+                      >
+                        <div>
+                          <h3 className='font-bold text-xl mb-1'>
+                            Phase {phaseIndex + 1}: {phase.title}
+                          </h3>
+                          <p className='text-sm opacity-90'>
+                            {phase.description}
+                          </p>
+                        </div>
+
+                        <span
+                          className={`ml-4 text-primary-foreground/80 text-2xl transition-transform duration-300 ${
+                            openPhase === phaseIndex ? 'rotate-180' : ''
+                          }`}
+                        >
+                          ⌄
+                        </span>
                       </div>
 
-                      <div className='space-y-3 ml-4'>
+                      {/* COLLAPSIBLE MODULE LIST */}
+                      <div
+                        className={`ml-4 space-y-3 transition-all duration-300 overflow-hidden ${
+                          openPhase === phaseIndex
+                            ? 'max-h-[2000px] opacity-100 mt-3'
+                            : 'max-h-0 opacity-0'
+                        }`}
+                      >
                         {phase.modules?.map((module, moduleIndex) => (
-                          <div
-                            key={moduleIndex}
-                            className='p-4 border border-border rounded-lg hover:bg-muted/50 transition-colors'
-                          >
-                            <div className='flex items-start justify-between mb-2'>
+                          <div key={moduleIndex} className='space-y-2'>
+                            {/* CLICKABLE MODULE HEADER */}
+                            <div
+                              onClick={() =>
+                                toggleModule(phaseIndex, moduleIndex)
+                              }
+                              className='p-4 border border-border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors flex items-center justify-between'
+                            >
                               <h4 className='font-semibold'>
                                 {moduleIndex + 1}. {module.title}
                               </h4>
                               <Badge variant='secondary'>
                                 {module.duration}
                               </Badge>
+                            </div>
+
+                            {/* MODULE DETAILS COLLAPSE */}
+                            <div
+                              className={`ml-4 border-l pl-4 text-sm text-muted-foreground transition-all duration-300 overflow-hidden ${
+                                openModule[phaseIndex] === moduleIndex
+                                  ? 'max-h-[2000px] opacity-100 mt-3'
+                                  : 'max-h-0 opacity-0'
+                              }`}
+                            >
+                              {module.topics && module.topics.length > 0 && (
+                                <ul className='list-disc ml-4 space-y-1'>
+                                  {module.topics.map((topic, i) => (
+                                    <li key={i}>{topic}</li>
+                                  ))}
+                                </ul>
+                              )}
+                              {/* 
+                              TBD next year
+                              {module.resources && (
+                                <div className='mt-3'>
+                                  <p className='font-semibold mb-1'>
+                                    Resources:
+                                  </p>
+                                  <p>{module.resources}</p>
+                                </div>
+                              )} */}
+
+                              {module.tasks && (
+                                <div className='mt-3'>
+                                  <p className='font-semibold mb-1'>Tasks:</p>
+                                  <p>{module.tasks}</p>
+                                </div>
+                              )}
                             </div>
                           </div>
                         ))}
@@ -261,7 +333,18 @@ const SyllabusDetail = () => {
                 </CardHeader>
                 <CardContent>
                   <p className='text-muted-foreground'>
-                    {syllabus.resources || 'N/A'}
+                    {syllabus.resources ? (
+                      <a
+                        href={syllabus.resources}
+                        target='_blank'
+                        rel='noopener noreferrer'
+                        className='text-primary underline hover:text-primary/80'
+                      >
+                        📘 Link to Course Resources
+                      </a>
+                    ) : (
+                      <p className='text-muted-foreground'>N/A</p>
+                    )}{' '}
                   </p>
                 </CardContent>
               </Card>
