@@ -17,6 +17,7 @@ import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import syllabusApi from '@/api/syllabusApi';
 import { Syllabus } from '@/api/types';
+import { cn } from '@/lib/utils';
 
 const SyllabusDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -247,7 +248,7 @@ const SyllabusDetail = () => {
                       <div
                         className={`ml-4 space-y-3 transition-all duration-300 overflow-hidden ${
                           openPhase === phaseIndex
-                            ? 'max-h-[2000px] opacity-100 mt-3'
+                            ? 'max-h-[9999px] opacity-100 mt-3'
                             : 'max-h-0 opacity-0'
                         }`}
                       >
@@ -258,14 +259,23 @@ const SyllabusDetail = () => {
                               onClick={() =>
                                 toggleModule(phaseIndex, moduleIndex)
                               }
-                              className='p-4 border border-border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors flex items-center justify-between'
+                              className='p-4 border border-border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors flex items-center justify-between gap-3'
                             >
-                              <h4 className='font-semibold'>
+                              <h4
+                                className={cn(
+                                  'font-semibold transition-all',
+                                  openModule[phaseIndex] === moduleIndex
+                                    ? 'whitespace-normal break-words'
+                                    : 'truncate max-w-[75%]',
+                                )}
+                              >
                                 {moduleIndex + 1}. {module.title}
                               </h4>
-                              <Badge variant='secondary'>
-                                {module.duration}
-                              </Badge>
+                              {module.duration && (
+                                <Badge variant='secondary' className='shrink-0'>
+                                  {module.duration}
+                                </Badge>
+                              )}
                             </div>
 
                             {/* MODULE DETAILS COLLAPSE */}
