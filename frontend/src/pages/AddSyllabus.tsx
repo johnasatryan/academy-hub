@@ -205,7 +205,7 @@ const AddSyllabus = () => {
           Back
         </Button>
 
-        <div className='mb-8 animate-fade-in'>
+        <div className='mb-6 animate-fade-in'>
           <h1 className='text-4xl font-bold mb-2 bg-gradient-primary bg-clip-text text-transparent'>
             Create New Syllabus
           </h1>

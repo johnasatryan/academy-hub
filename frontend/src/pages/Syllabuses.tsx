@@ -33,14 +33,39 @@ const Syllabuses = () => {
   }, []);
 
   const filteredSyllabuses = syllabuses.filter((syllabus) => {
-    const matchesSearch =
-      syllabus.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      syllabus.instructor.toLowerCase().includes(searchQuery.toLowerCase());
+    const q = searchQuery.toLowerCase();
+
+    // --- Search in title ---
+    const matchTitle = syllabus.title.toLowerCase().includes(q);
+
+    // --- Search inside phases ---
+    const matchPhases =
+      syllabus.phases?.some((phase) => {
+        const phaseTitleMatch = phase.title.toLowerCase().includes(q);
+        const instructorMatch =
+          phase.instructor?.toLowerCase().includes(q) ?? false;
+        const prereqMatch =
+          phase.prerequisites?.toLowerCase().includes(q) ?? false;
+
+        // Module-level search
+        const moduleMatch = phase.modules?.some((m) => {
+          const modTitleMatch = m.title.toLowerCase().includes(q);
+          const topicMatch = m.topics?.some((t) => t.toLowerCase().includes(q));
+
+          return modTitleMatch || topicMatch;
+        });
+
+        return phaseTitleMatch || instructorMatch || prereqMatch || moduleMatch;
+      }) ?? false;
+
+    const matchesSearch = matchTitle || matchPhases;
+
     const matchesLevel =
-      filterLevel === 'all' || syllabus.level.toLowerCase() === filterLevel;
+      filterLevel === 'all' || syllabus.level?.toLowerCase() === filterLevel;
+
     const matchesCategory =
       filterCategory === 'all' ||
-      syllabus.category.toLowerCase() === filterCategory;
+      syllabus.category?.toLowerCase() === filterCategory;
 
     return matchesSearch && matchesLevel && matchesCategory;
   });
@@ -107,14 +132,12 @@ const Syllabuses = () => {
               id={syllabus.id!}
               title={syllabus.title}
               description={syllabus.description}
-              instructor={syllabus.instructor}
-              duration={syllabus.duration}
               level={syllabus.level}
               category={syllabus.category}
-              prerequisites={syllabus.prerequisites}
               resources={syllabus.resources}
               tags={syllabus.tags}
               phases={syllabus.phases}
+              duration={''}
             />
           ))}
         </div>

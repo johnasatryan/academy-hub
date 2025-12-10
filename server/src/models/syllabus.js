@@ -1,29 +1,35 @@
 import mongoose from 'mongoose';
 
+// MODULE schema --------------------------------------
 const moduleSchema = new mongoose.Schema({
-  title: String,
-  duration: String,
-  topics: [String],
+  title: { type: String, required: true },
+  duration: { type: String },
+  topics: { type: [String], default: [] },
 });
 
+// PHASE schema ----------------------------------------
 const phaseSchema = new mongoose.Schema({
-  title: String,
-  description: String,
-  modules: [moduleSchema],
+  title: { type: String, required: true },
+  description: { type: String },
+
+  instructor: { type: String },
+  duration: { type: Number },
+  prerequisites: { type: String },
+
+  modules: { type: [moduleSchema], default: [] },
 });
+
+// SYLLABUS schema -------------------------------------
 const syllabusSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
-    description: String,
-    instructor: String,
-    duration: String,
-    level: String,
-    category: String,
-    prerequisites: String,
-    resources: String,
-    tags: [String],
-    tasks: [String],
-    phases: [phaseSchema],
+    description: { type: String },
+    level: { type: String },
+    category: { type: String },
+    resources: { type: String },
+    tags: { type: [String], default: [] },
+    tasks: { type: [String], default: [] },
+    phases: { type: [phaseSchema], default: [] },
   },
   { timestamps: true },
 );

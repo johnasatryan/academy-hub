@@ -58,7 +58,7 @@ const Dashboard = () => {
     },
   ];
 
-  // Sort by most recent
+  // Sort by recently updated
   const recentSyllabuses = [...syllabuses]
     .sort(
       (a, b) =>
@@ -66,6 +66,35 @@ const Dashboard = () => {
         new Date(a.updatedAt || '').getTime(),
     )
     .slice(0, 5);
+
+  const computeTotalDuration = (syllabus: Syllabus) => {
+    if (!syllabus.phases) return 'N/A';
+
+    // take all valid numeric durations
+    const durations = syllabus.phases
+      .map((p) => p.duration)
+      .filter((d): d is number => typeof d === 'number' && d > 0);
+
+    if (durations.length === 0) return 'N/A';
+
+    const total = durations.reduce((sum, d) => sum + d, 0);
+
+    return `${total} months`;
+  };
+
+  // Helper: Get instructor from the first phase (or indicate multiple)
+  const getCourseInstructor = (syllabus: Syllabus) => {
+    if (!syllabus.phases || syllabus.phases.length === 0) return 'N/A';
+
+    const phaseInstructors = syllabus.phases
+      .map((p) => p.instructor)
+      .filter(Boolean);
+
+    if (phaseInstructors.length === 0) return 'N/A';
+    if (phaseInstructors.length === 1) return phaseInstructors[0];
+
+    return 'Multiple Instructors';
+  };
 
   if (loading) {
     return (
@@ -111,7 +140,7 @@ const Dashboard = () => {
           })}
         </div>
 
-        {/* Recent syllabuses & quick actions */}
+        {/* Recent Syllabuses */}
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
           <Card className='animate-fade-in'>
             <CardHeader>
@@ -132,10 +161,16 @@ const Dashboard = () => {
                     <div className='flex items-start justify-between'>
                       <div>
                         <h3 className='font-semibold mb-1'>{syllabus.title}</h3>
+
                         <p className='text-sm text-muted-foreground'>
-                          by {syllabus.instructor || 'Unknown'}
+                          {getCourseInstructor(syllabus)}
+                        </p>
+
+                        <p className='text-xs text-muted-foreground mt-1'>
+                          Duration: {computeTotalDuration(syllabus)}
                         </p>
                       </div>
+
                       <span className='text-xs text-muted-foreground'>
                         {syllabus.updatedAt
                           ? new Date(syllabus.updatedAt).toLocaleDateString()
@@ -157,8 +192,8 @@ const Dashboard = () => {
                 <Button
                   variant='secondary'
                   className='w-full justify-start'
-                  size='lg'
                   mb='sm'
+                  size='lg'
                 >
                   <Plus className='mr-2 h-5 w-5' />
                   Create New Syllabus
